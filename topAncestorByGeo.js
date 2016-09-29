@@ -19,6 +19,7 @@ var oneUnwind={ "$unwind" : "$Ancestors" };
 var oneSort={ "$sort" : { "Ancestors.depth" : -1 , "Ancestors.DUNS_NBR" : 1 }};
 var oneLimit={ "$limit" : 1 };
 var renameFields={ "$project" : { "Source" : 1 , "ultimateParent" : "$Ancestors.DUNS_NBR"}};
+/*needs an entry to stop at the same geo whish will be a match*/
 
 var result=db.tv.aggregate([ oneMatch, oneLookup, oneProject]);
 result.forEach(printjson)
