@@ -17,5 +17,6 @@ var oneProject={ "$project" : {
 var oneUnwind={ "$unwind" : "$Descendants" };
 var oneSort={ "$sort" : { "Descendants.depth" : 1 , "Descendants.DUNS_NBR" : 1 }};
 
-var result=db.tv.aggregate([ oneMatch, oneLookup, oneProject, oneUnwind, oneSort  ]);
+var result=db.tv.aggregate([ oneMatch, oneLookup, oneProject, oneUnwind, oneSort  ]); 
+/*var result=db.tv.aggregate([ oneMatch, oneLookup  ]);*/
 result.forEach(printjson)

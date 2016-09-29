@@ -1,4 +1,4 @@
-var oneMatch={ "$match" : { "DUNS_NBR" : "100000025" } };
+var oneMatch={ "$match" : { "DUNS_NBR" : "800000025" } };
 var oneLookup={ "$graphLookup" : { 
 	from: "tv", 
 	startWith : "$ASSN.DUNS_NBR", 
@@ -16,10 +16,11 @@ var oneProject={ "$project" : {
 };
 
 var oneUnwind={ "$unwind" : "$Ancestors" };
+var twoMatch={ "$match" : { "Ancestors.GEO_REF_ID" : 2 }};
 var oneSort={ "$sort" : { "Ancestors.depth" : -1 , "Ancestors.DUNS_NBR" : 1 }};
 var oneLimit={ "$limit" : 1 };
-var renameFields={ "$project" : { "Source" : 1 , "ultimateParent" : "$Ancestors.DUNS_NBR"}};
-/*needs an entry to stop at the same geo whish will be a match*/
+var renameFields={ "$project" : { "Source" : 1 , "domesticUltimateParent" : "$Ancestors.DUNS_NBR"}};
 
-var result=db.tv.aggregate([ oneMatch, oneLookup, oneProject]);
+/*var result=db.tv.aggregate([ oneMatch, oneLookup, oneProject, oneUnwind, twoMatch, oneSort,oneLimit, renameFields]);*/
+var result=db.tv.aggregate([ oneMatch, oneLookup, oneProject, oneUnwind, twoMatch, oneSort, oneLimit, renameFields]);
 result.forEach(printjson)
