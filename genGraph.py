@@ -22,6 +22,8 @@ from pymongo import MongoClient, InsertOne
 def usage():
     print "Invalid command line argument"
     print "--minDuns=<number>, --maxDuns=<number> , -D=<dbname>, -C=<collection_name>, -T=<total trees>"
+    print " for uri try something like m host:port/database?replicaSet=repset"
+    print " if you provide the URI, you don't need to pass the -D option"
     exit()
     
 logging.basicConfig(level=logging.INFO,
@@ -35,7 +37,7 @@ totalTrees=100
 process_count=1
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "C:D:T:p:", ["minDuns=", "maxDuns=", "level=", "username=", "password=" ])
+    opts, args = getopt.getopt(sys.argv[1:], "C:D:T:p:h:", ["minDuns=", "maxDuns=", "level=", "username=", "password=" ])
     logging.debug("Operation list length is : %d " % len(opts))
 except getopt.GetoptError:
     print "You provided invalid command line switches."
@@ -56,6 +58,9 @@ for opt, arg in opts:
     elif opt in ("-p"):
         print "process Count set to: " , arg
         process_count=int(arg)    
+    elif opt in ("-h"):
+        print "Host Uri: " , arg
+        mongoUri=str(arg)
     elif opt in ("--minDuns"):
         print "Min duns set to ", arg
         currentDuns=int(arg)
@@ -83,8 +88,10 @@ for opt, arg in opts:
         usage()
         exit(2)
         
-
-client = MongoClient(connect=False)
+if  mongoUri != None :
+    client = MongoClient('mongodb://' + mongoUri, connect=False)
+else: 
+    client = MongoClient(connect=False)
 db = client.get_database(tdb)
 db.authenticate(username,password=password,source="admin")
 col = db.get_collection(tcoll)
