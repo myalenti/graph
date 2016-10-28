@@ -18,6 +18,7 @@ from collections import OrderedDict
 #from JsonDocuments import JsonDocuments
 
 from pymongo import MongoClient, InsertOne
+from pymongo.errors import BulkWriteError
 
 def usage():
     print "Invalid command line argument"
@@ -92,9 +93,9 @@ if  mongoUri != None :
     client = MongoClient('mongodb://' + mongoUri, connect=False)
 else: 
     client = MongoClient(connect=False)
-db = client.get_database(tdb)
-db.authenticate(username,password=password,source="admin")
-col = db.get_collection(tcoll)
+#db = client.get_database(tdb)
+#db.authenticate(username,password=password,source="admin")
+#col = db.get_collection(tcoll)
 
 treeDepthMin=1
 treeDepthMax=4
@@ -174,7 +175,7 @@ def writeTreeToMongo(tree):
             doc = OrderedDict()
             doc['DUNS_NBR'] = r['DUNS_NBR']
             doc['COMPANY_NAME'] = faker.company()
-            doc['GEO_REF_ID'] = random.randint(1,196)
+            doc['GEO_RF_ID'] = random.randint(1,196)
             doc['SUBJ_TYPE_CD'] = random.randint(1000,9999)
             doc['ASSN'] = OrderedDict()
             doc['ASSN']['DUNS_NBR'] = r['parent']
@@ -193,6 +194,9 @@ def writeTreeToMongo(tree):
 
 
 def exec_tree(tgtcount, baseDUNS):
+    db = client.get_database(tdb)
+    db.authenticate(username,password=password,source="admin")
+    col = db.get_collection(tcoll)
     count=0
     global currentDuns
     currentDuns=baseDUNS
@@ -201,7 +205,12 @@ def exec_tree(tgtcount, baseDUNS):
         tree = buildTree(treeSkeleton)
         #print tree
         req = writeTreeToMongo(tree)
-        result = col.bulk_write(req)
+        print ("entering the try")
+        try:
+            result = col.bulk_write(req)
+        except BulkWriteError as e:
+            print(e.details)
+            exit()
         count += 1
 
 tgtcount=totalTrees/process_count
